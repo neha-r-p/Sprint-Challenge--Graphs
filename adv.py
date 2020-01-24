@@ -12,8 +12,8 @@ world = World()
 
 
 # You may uncomment the smaller graphs for development and testing purposes.
-# map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+map_file = "maps/test_line.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
 # map_file = "maps/main_maze.txt"
@@ -57,8 +57,6 @@ class Transversal_Graph:
         else:
             #keep track of which direction traveled from prev room id?
             #if 's', then prev_room_id will be 'n' of current_room id
-            print("in add_door room id", room_id)
-            print("in add door prev room id", prev_room_id)
             if direction == 'n':
                 graph.rooms[prev_room_id][direction] = room_id
                 graph.rooms[room_id]['s'] = prev_room_id
@@ -73,21 +71,41 @@ class Transversal_Graph:
                 graph.rooms[room_id]['e'] = prev_room_id
         
     def create_graph(self):
+        prev_room_id = self.prev_room_id
         #create first room
         self.add_room(player.current_room.id)
+        #get possible directions of the current room?
+        while '?' in self.rooms[player.current_room.id].values():
+            possible_dir = []
+            for k,v in self.rooms[player.current_room.id].items():
+                if v is '?':
+                    possible_dir.append(k) 
+
+        #pick one with '?' at random
+            direction = random.choice(possible_dir)
+        #go to that room, keeping track of direction.
+            player.travel(direction)
+        #add room, then add door
+            self.add_room(player.current_room.id)
+            self.add_door(player.current_room.id, prev_room_id, direction)
+            #set prev room id to current
+            prev_room_id = player.current_room.id
+            print("prev room id", prev_room_id)
             
 
 graph = Transversal_Graph()
-graph.add_room(player.current_room.id)
-direction = 'w'
-print("graph at current room", graph.rooms[player.current_room.id][direction])
-player.travel(direction)
-print("current room ID", player.current_room.id)
-graph.add_room(player.current_room.id)
-print("graph at current room", graph.rooms[player.current_room.id])
-graph.add_door(player.current_room.id, graph.prev_room_id, direction)
-print("graph at current room", graph.rooms[player.current_room.id])
-print("graph at prev room", graph.rooms[graph.prev_room_id])
+graph.create_graph()
+print("graph dict", graph.rooms)
+# graph.add_room(player.current_room.id)
+# direction = 'w'
+# print("graph at current room", graph.rooms[player.current_room.id][direction])
+# player.travel(direction)
+# print("current room ID", player.current_room.id)
+# graph.add_room(player.current_room.id)
+# print("graph at current room", graph.rooms[player.current_room.id])
+# graph.add_door(player.current_room.id, graph.prev_room_id, direction)
+# print("graph at current room", graph.rooms[player.current_room.id])
+# print("graph at prev room", graph.rooms[graph.prev_room_id])
 
 # TRAVERSAL TEST
 visited_rooms = set()
