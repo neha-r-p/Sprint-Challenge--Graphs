@@ -62,12 +62,24 @@ class Transversal_Graph:
             if direction == 'n':
                 graph.rooms[prev_room_id][direction] = room_id
                 graph.rooms[room_id]['s'] = prev_room_id
-            pass
+            if direction == 's':
+                graph.rooms[prev_room_id][direction] = room_id
+                graph.rooms[room_id]['n'] = prev_room_id
+            if direction == 'e':
+                graph.rooms[prev_room_id][direction] = room_id
+                graph.rooms[room_id]['w'] = prev_room_id
+            if direction == 'w':
+                graph.rooms[prev_room_id][direction] = room_id
+                graph.rooms[room_id]['e'] = prev_room_id
+        
+    def create_graph(self):
+        #create first room
+        self.add_room(player.current_room.id)
             
 
 graph = Transversal_Graph()
 graph.add_room(player.current_room.id)
-direction = 'n'
+direction = 'w'
 print("graph at current room", graph.rooms[player.current_room.id][direction])
 player.travel(direction)
 print("current room ID", player.current_room.id)
@@ -75,6 +87,7 @@ graph.add_room(player.current_room.id)
 print("graph at current room", graph.rooms[player.current_room.id])
 graph.add_door(player.current_room.id, graph.prev_room_id, direction)
 print("graph at current room", graph.rooms[player.current_room.id])
+print("graph at prev room", graph.rooms[graph.prev_room_id])
 
 # TRAVERSAL TEST
 visited_rooms = set()
