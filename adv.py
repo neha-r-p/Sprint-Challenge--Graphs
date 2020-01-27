@@ -12,17 +12,17 @@ world = World()
 
 
 # You may uncomment the smaller graphs for development and testing purposes.
-map_file = "maps/test_line.txt"
+# map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
 world.load_graph(room_graph)
 
-# print("room graph", room_graph)
+print("room graph", room_graph)
 
 # Print an ASCII map
 world.print_rooms()
@@ -69,28 +69,63 @@ class Transversal_Graph:
             if direction == 'w':
                 graph.rooms[prev_room_id][direction] = room_id
                 graph.rooms[room_id]['e'] = prev_room_id
+        print("door room id:", room_id, "previous room id:", prev_room_id)
+    
+    def opposite_direction(self, direction):
+        if direction == 'n':
+            return 's'
+        if direction == 's':
+            return 'n'
+        if direction == 'e':
+            return 'w'
+        if direction == 'w':
+            return 'e'
         
     def create_graph(self):
         prev_room_id = self.prev_room_id
         #create first room
         self.add_room(player.current_room.id)
         #get possible directions of the current room?
-        while '?' in self.rooms[player.current_room.id].values():
-            possible_dir = []
-            for k,v in self.rooms[player.current_room.id].items():
-                if v is '?':
-                    possible_dir.append(k) 
+        stack = Stack()
+        # stack.push(player.current_room.id)
+        visited = set()
 
-        #pick one with '?' at random
-            direction = random.choice(possible_dir)
-        #go to that room, keeping track of direction.
-            player.travel(direction)
-        #add room, then add door
-            self.add_room(player.current_room.id)
-            self.add_door(player.current_room.id, prev_room_id, direction)
-            #set prev room id to current
-            prev_room_id = player.current_room.id
-            print("prev room id", prev_room_id)
+        while len(visited) != len(room_graph):
+            # room = player.current_room.id
+            # path = stack.pop()
+            # room = path[-1]
+            if player.current_room.id not in visited:
+                visited.add(player.current_room.id)
+                # breakpoint()
+
+            if '?' in self.rooms[player.current_room.id].values():
+            #push new current room to stack
+                possible_dir = []
+                for k,v in self.rooms[player.current_room.id].items():
+                    if v is '?':
+                        possible_dir.append(k)
+                print("possible direction", possible_dir)
+
+
+            #pick one with '?' at random
+                direction = random.choice(possible_dir)
+                stack.push(direction)
+                print("stackz on stacks", stack.stack)
+            #go to that room, keeping track of direction.
+                player.travel(direction)
+            #add room, then add door
+                self.add_room(player.current_room.id)
+                self.add_door(player.current_room.id, prev_room_id, direction)
+                prev_room_id = player.current_room.id
+                print("prev room id", prev_room_id)
+                #set prev room id to current
+            else:
+                backwards = self.opposite_direction(stack.pop())
+                player.travel(backwards)
+                print("player current room after backtrack", player.current_room.id)
+                prev_room_id = player.current_room.id
+                
+
             
 
 graph = Transversal_Graph()
